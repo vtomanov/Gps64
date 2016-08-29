@@ -29,7 +29,21 @@ struct GPS_DATA
 
   int16_t deg;
   uint32_t minSec;
+
+  GPS_DATA & operator=(const GPS_DATA & gps_data)
+  {
+    // check for self-assignment
+    if (&gps_data == this)
+    {
+      return *this;
+    }
+    deg = gps_data.deg;
+    minSec = gps_data.deg;
+    return *this;
+  }
 };
+
+
 
 //////////////////////////////////////////////////////////////////////////////////////
 // ALL AVAILABLE FUNCTIONS ( .h )
