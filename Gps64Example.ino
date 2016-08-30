@@ -30,6 +30,7 @@ void setup()
 void loop()
 {
   // in GPS_DATA raw format the second number(minSec) always need to have 9 digits
+  // BUT if it start with zero(s) they need to be ommited as else they will be treated as oct number
   GPS_DATA gps_data_lat_start(40, 748610000);
   GPS_DATA gps_data_lng_start(-73, 986410000);
 
