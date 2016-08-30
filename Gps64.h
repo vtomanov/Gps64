@@ -25,31 +25,20 @@ struct GPS_DATA
 {
   GPS_DATA() {};
   GPS_DATA(const GPS_DATA & gps_data): deg(gps_data.deg), minSec(gps_data.minSec) {};
-  GPS_DATA(const int16_t deg_, const uint32_t minSec_) 
+  GPS_DATA(const int16_t deg_, const uint32_t minSec_)
   {
     deg = deg_;
     minSec = minSec_;
     for (; minSec <= 99999999L; )
     {
-        minSec *= 10L;
+      minSec *= 10L;
     }
-    
+
   };
 
   int16_t deg;
   uint32_t minSec;
 
-  GPS_DATA & operator=(const GPS_DATA & gps_data)
-  {
-    // check for self-assignment
-    if (&gps_data == this)
-    {
-      return *this;
-    }
-    deg = gps_data.deg;
-    minSec = gps_data.deg;
-    return *this;
-  }
 };
 
 
