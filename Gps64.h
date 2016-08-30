@@ -21,20 +21,12 @@
 #include <Math64.h>
 
 // in GPS_DATA raw format the second number(minSec) always need to have 9 digits
+// BUT if it start with zero(s) they need to be ommited as else they will be treated as oct number
 struct GPS_DATA
 {
   GPS_DATA() {};
   GPS_DATA(const GPS_DATA & gps_data): deg(gps_data.deg), minSec(gps_data.minSec) {};
-  GPS_DATA(const int16_t deg_, const uint32_t minSec_)
-  {
-    deg = deg_;
-    minSec = minSec_;
-    for (; minSec <= 99999999L; )
-    {
-      minSec *= 10L;
-    }
-
-  };
+  GPS_DATA(const int16_t deg_, const uint32_t minSec_) : deg(deg_), minSec(minSec_){};
 
   int16_t deg;
   uint32_t minSec;
@@ -706,11 +698,11 @@ inline double disto(GPS_DATA & latStart,
                     GPS_DATA & latEnd,
                     GPS_DATA & lngEnd)
 {
-  f64 _latStart(gtof64(latStart));
+  f64 _latStart(gtof64(latStart)); 
   f64 _lngStart(gtof64(lngStart));
 
-  f64 _latEnd(gtof64(latEnd));
-  f64 _lngEnd(gtof64(lngEnd));
+  f64 _latEnd(gtof64(latEnd)); 
+  f64 _lngEnd(gtof64(lngEnd)); 
 
   return f64tod(
            dist64o(_latStart,
@@ -727,7 +719,7 @@ inline double dist(GPS_DATA & latStart,
                    GPS_DATA & latEnd,
                    GPS_DATA & lngEnd)
 {
-  f64 _latStart(gtof64(latStart));
+  f64 _latStart(gtof64(latStart)); 
   f64 _lngStart(gtof64(lngStart));
 
   f64 _latEnd(gtof64(latEnd));
