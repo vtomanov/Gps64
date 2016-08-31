@@ -31,7 +31,14 @@
 
 // in GPS_DATA raw format the second number(minSec) always need to have 9 digits
 // BUT if it start with zero(s) they need to be ommited as else they will be treated as oct number
-
+// the GPS_DATA is designed to match the TinyGPS type : 
+// struct RawDegrees
+//{
+//   uint16_t deg;
+//   uint32_t billionths;
+//   bool negative;
+//};
+// you can initialize GPS_DATA from RawDegrees with deg = deg * ((negative) : -1 : 1); minSec = billionths; 
 GPS_DATA lat[GPS_DATA_COUNT] = {
   GPS_DATA( 42, 260096000 ),
   GPS_DATA( 42, 260285000 ),
