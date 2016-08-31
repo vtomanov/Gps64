@@ -167,7 +167,7 @@ bool gps_read()
   gps_read_lastExecute = T64_TIMER_GET();
 
   // get next point
-  if (gps_counter > GPS_DATA_COUNT)
+  if (gps_counter >= GPS_DATA_COUNT)
   {
     gps_counter = 0;
   }
