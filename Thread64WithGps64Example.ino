@@ -31,14 +31,14 @@
 
 // in GPS_DATA raw format the second number(minSec) always need to have 9 digits
 // BUT if it start with zero(s) they need to be ommited as else they will be treated as oct number
-// the GPS_DATA is designed to match the TinyGPS type : 
+// the GPS_DATA is designed to match the TinyGPS type :
 // struct RawDegrees
 //{
 //   uint16_t deg;
 //   uint32_t billionths;
 //   bool negative;
 //};
-// you can initialize GPS_DATA from RawDegrees with deg = deg * ((negative) : -1 : 1); minSec = billionths; 
+// you can initialize GPS_DATA from RawDegrees with deg = deg * ((negative) : -1 : 1); minSec = billionths;
 GPS_DATA lat[GPS_DATA_COUNT] = {
   GPS_DATA( 42, 260096000 ),
   GPS_DATA( 42, 260285000 ),
@@ -87,6 +87,15 @@ GPS_DATA lat[GPS_DATA_COUNT] = {
 
 // in GPS_DATA raw format the second number(minSec) always need to have 9 digits
 // BUT if it start with zero(s) they need to be ommited as else they will be treated as oct number
+// BUT if it start with zero(s) they need to be ommited as else they will be treated as oct number
+// the GPS_DATA is designed to match the TinyGPS type :
+// struct RawDegrees
+//{
+//   uint16_t deg;
+//   uint32_t billionths;
+//   bool negative;
+//};
+// you can initialize GPS_DATA from RawDegrees with deg = deg * ((negative) : -1 : 1); minSec = billionths;
 GPS_DATA lng[GPS_DATA_COUNT] = {
   GPS_DATA( 3, 183401000  ),
   GPS_DATA( 3, 183478000  ),
@@ -149,11 +158,11 @@ int32_t gps_read_lastExecute;
 
 uint8_t gps_counter = 1;
 
-void gps_read()
+bool gps_read()
 {
   if (!T64_DO_EXECUTE(T64_TIMER_GET(), gps_read_lastExecute, gps_read_timeout))
   {
-    return;
+    return false;
   }
   gps_read_lastExecute = T64_TIMER_GET();
 
@@ -172,6 +181,8 @@ void gps_read()
     ++gps_counter;
     Serial.println("GPS(new position aquired)[" + String(lat_tmp.deg) + "." + String(lat_tmp.minSec) + " : " + String(lng_tmp.deg) + "." + String(lng_tmp.minSec) + "]");
   }
+
+  return true;
 }
 
 
@@ -185,12 +196,12 @@ int32_t display_lastExecute;
 int32_t last_data_received_at;
 int32_t start_at;
 
-void display()
+bool display()
 {
 
   if (!T64_DO_EXECUTE(T64_TIMER_GET(), display_lastExecute, display_timeout))
   {
-    return;
+    return false;;
   }
 
   display_lastExecute = T64_TIMER_GET();
@@ -221,6 +232,8 @@ void display()
     Serial.println();
   }
 
+  return true;
+
 }
 
 
@@ -231,12 +244,12 @@ int32_t calc_lastExecute;
 // 10 millis  in 10's of millis
 #define calc_timeout  (1L)
 
-void  calc()
+bool calc()
 {
 
   if (!T64_DO_EXECUTE(T64_TIMER_GET(), calc_lastExecute, calc_timeout))
   {
-    return;
+    return false;
   }
   calc_lastExecute = T64_TIMER_GET();
 
@@ -278,6 +291,7 @@ void  calc()
     }
   }
 
+  return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -286,11 +300,11 @@ int32_t reset_start_lastExecute;
 // 60 sec  in 10's of millis
 #define reset_start_timeout  (6000L)
 
-void reset_start()
+bool reset_start()
 {
   if (!T64_DO_EXECUTE(T64_TIMER_GET(), reset_start_lastExecute, reset_start_timeout))
   {
-    return;
+    return false;
   }
   reset_start_lastExecute = T64_TIMER_GET();
 
@@ -306,6 +320,8 @@ void reset_start()
   Serial.println();
   Serial.println("Start position changed to [" + String(lat_tmp.deg) + "." + String(lat_tmp.minSec) + " : " + String(lng_tmp.deg) + "." + String(lng_tmp.minSec) + "]");
   Serial.println();
+
+  return true;
 }
 
 
@@ -318,7 +334,7 @@ void setup()
   Serial.println("Thread64/Gps64 Example");
 
   // Thread64 ( background function & background stack size )
-  T64_INIT(calc, 1280);
+  T64_INIT(background_loop, 1280);
 
   // make sure timer has started
   for (; T64_TIMER_GET() != 0;) {};
@@ -330,18 +346,34 @@ void setup()
 
 }
 
+void background_loop()
+{
+  bool work_done = false;
+
+  work_done =  work_done || calc();
+
+  if (!work_done)
+  {
+    T64_YIELD();
+  }
+}
+
 void loop()
 {
+  bool work_done = false;
 
-  gps_read();
+  work_done =  work_done || gps_read();
 
-  display();
+  work_done = work_done || display();
 
   // background calculation is processor calc()
 
-  reset_start();
+  work_done = work_done || reset_start();
 
+  if (!work_done)
+  {
+    T64_YIELD();
+  }
 
-  delay(1);
 }
 
