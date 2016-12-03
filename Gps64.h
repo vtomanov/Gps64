@@ -29,19 +29,18 @@
 //   uint32_t billionths;
 //   bool negative;
 //};
-// you can initialize GPS_DATA from RawDegrees with deg = deg * ((negative) : -1 : 1); minSec = billionths; 
+
+// you can initialize GPS_DATA from RawDegrees with deg = deg * ((negative) ? : -1 : 1); minSec = billionths * ((negative) && (deg == 0) ? : -1 : 1); 
 struct GPS_DATA
 {
   GPS_DATA() {};
   GPS_DATA(const GPS_DATA & gps_data): deg(gps_data.deg), minSec(gps_data.minSec) {};
-  GPS_DATA(const int16_t deg_, const uint32_t minSec_) : deg(deg_), minSec(minSec_){};
+  GPS_DATA(const int16_t deg_, const int32_t minSec_) : deg(deg_), minSec(minSec_){};
 
   int16_t deg;
-  uint32_t minSec;
+  int32_t minSec;
 
 };
-
-
 
 //////////////////////////////////////////////////////////////////////////////////////
 // ALL AVAILABLE FUNCTIONS ( .h )
@@ -299,11 +298,11 @@ inline f64 gtof64 (const GPS_DATA & gps_data)
   f64 rhs(gps_data.deg);
   f64 ret_frac(gps_data.minSec);
   ret_frac /= f64(1000000000L);
-  if (gps_data.deg > 0)
+  if (gps_data.deg >= 0)
   {
-    rhs += ret_frac;
+    rhs += ret_frac; // we handle the case when deg == 0 and minSec < 0 here
   }
-  else
+  else if (gps_data.deg < 0)
   {
     rhs -= ret_frac;
   }
@@ -349,13 +348,13 @@ inline GPS_DATA f64tog(const f64 & rhs)
   f64 fint(iint);
   f64 frac(rhs - fint);
   frac *= f64(1000000000L);
-  if (rhs.isNegative())
+  if (gps_data.deg >= 0)
   {
-    gps_data.minSec = static_cast<uint32_t>(abs64o(frac).ipart());
+	gps_data.minSec = static_cast<int32_t>(frac.ipart()); // we handle the case with deg = 0 and minSec < 0 here
   }
   else
   {
-    gps_data.minSec = static_cast<uint32_t>(frac.ipart());
+    gps_data.minSec = static_cast<int32_t>(abs64o(frac).ipart());
   }
 
   return gps_data;
