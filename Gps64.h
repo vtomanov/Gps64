@@ -30,7 +30,7 @@
 //   bool negative;
 //};
 
-// you can initialize GPS_DATA from RawDegrees with deg = deg * ((negative) ? : -1 : 1); minSec = billionths * ((negative) && (deg == 0) ? : -1 : 1); 
+// you can initialize GPS_DATA from RawDegrees with deg = deg * ((negative) ? -1 : 1); minSec = billionths * ((negative) && (deg == 0) ? -1 : 1);
 struct GPS_DATA
 {
   GPS_DATA() {};
