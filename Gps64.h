@@ -31,12 +31,20 @@
 //};
 
 // you can initialize GPS_DATA from RawDegrees with deg = deg * ((negative) ? -1 : 1); minSec = billionths * ((negative) && (deg == 0) ? -1 : 1);
+// or include TinyGPSPlus header before this library and either use:
+//   GPS_DATA data(gps.location.rawLat());
+// or:
+//   GPS_DATA data;
+//   data.From(gps.location.rawLat());
 struct GPS_DATA
 {
   GPS_DATA() {};
   GPS_DATA(const GPS_DATA & gps_data): deg(gps_data.deg), minSec(gps_data.minSec) {};
   GPS_DATA(const int16_t deg_, const int32_t minSec_) : deg(deg_), minSec(minSec_){};
-
+#ifdef __TinyGPSPlus_h
+  GPS_DATA(RawDegrees data) : deg(data.deg * (data.negative ? -1 : 1)), minSec(data.billionths * ((data.negative) && (data.deg == 0) ? -1 : 1)){};
+  void From(RawDegrees data) { deg = data.deg * (data.negative ? -1 : 1); minSec = data.billionths * ((data.negative) && (data.deg == 0) ? -1 : 1);};
+#endif
   int16_t deg;
   int32_t minSec;
 
