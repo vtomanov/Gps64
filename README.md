@@ -7,29 +7,29 @@ This library uses Float64 & Math64 libs and also adds some fast and very fast im
 
 RUNNING/TESTING INSTRUCTIONS
 
-1. downlaod Math64 and Float64 from :
+1. downlaod Float64 from :
 
-https://github.com/mmoller2k
+https://github.com/mmoller2k/Float64
 
-2. download GPS64 ( and optionally Thread64) from :
+2. download Math64 from :
+
+https://github.com/JamesGKent/Math64
+
+3. download GPS64 ( and optionally Thread64) from :
 
  https://github.com/vtomanov
 
-3. create a folder:
+4. copy the contents of repository to:
 
 C:\Program Files (x86)\Arduino\libraries\Math64
 
-and copy the content of Math64 there
+or the local libraries folder.
 
 - do the same for Float64, Gps64  ( and optionally for Thread64)
 
-4. create a  folder somewhere on your disk with name :  Gps64Example
+5. restart your arduino environment ( to pickup the new libraries) 
 
-5. copy the file Gps64Example.ino inside
-
-6. restart your arduino environment ( to pickup the new libraries) 
-
-7. navigate to the folder Gps64Example and open the file Gps64Example.ino from it.
+6. select Gps64Example from file->examples->Gps64.
 
 8. compile - upload and run - open the serial interface monitor to see the results ( the example assumes you serial monitor is initialised with 115200 if different change the following line in the example :   Serial.begin(115200);
 
