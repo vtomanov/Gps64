@@ -866,10 +866,10 @@ inline void dest64o(f64 & latStart,
     offset_lat = _latStart;
   }
 
-  f64 _latEnd(asin64o(_sin_latStart * _cos_d_r + _cos_latStart * _sin_d_r * cos64(_bearing)));
+  f64 _latEnd(asin64o(_sin_latStart * _cos_d_r + _cos_latStart * _sin_d_r * cos64(_bearing)) - offset);
   f64 _lngEnd(_lngStart + atan264o(sin64(_bearing) * _sin_d_r * _cos_latStart, _cos_d_r - _sin_latStart * sin64(_latEnd)));
 
-  latEnd = rtod64(_latEnd-offset);
+  latEnd = rtod64(_latEnd);
   lngEnd = rtod64(_lngEnd);
 }
 
