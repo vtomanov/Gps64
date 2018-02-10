@@ -31,12 +31,20 @@
 //};
 
 // you can initialize GPS_DATA from RawDegrees with deg = deg * ((negative) ? -1 : 1); minSec = billionths * ((negative) && (deg == 0) ? -1 : 1);
+// or include TinyGPSPlus header before this library and either use:
+//   GPS_DATA data(gps.location.rawLat());
+// or:
+//   GPS_DATA data;
+//   data.From(gps.location.rawLat());
 struct GPS_DATA
 {
   GPS_DATA() {};
   GPS_DATA(const GPS_DATA & gps_data): deg(gps_data.deg), minSec(gps_data.minSec) {};
   GPS_DATA(const int16_t deg_, const int32_t minSec_) : deg(deg_), minSec(minSec_){};
-
+#ifdef __TinyGPSPlus_h
+  GPS_DATA(RawDegrees data) : deg(data.deg * (data.negative ? -1 : 1)), minSec(data.billionths * ((data.negative) && (data.deg == 0) ? -1 : 1)){};
+  void From(RawDegrees data) { deg = data.deg * (data.negative ? -1 : 1); minSec = data.billionths * ((data.negative) && (data.deg == 0) ? -1 : 1);};
+#endif
   int16_t deg;
   int32_t minSec;
 
@@ -844,8 +852,22 @@ inline void dest64o(f64 & latStart,
   //lat2: =ASIN(SIN(lat1)*COS(d/R) + COS(lat1)*SIN(d/R)*COS(brng))
   //lon2: =lon1 + ATAN2(SIN(brng)*SIN(d/R)*COS(lat1),COS(d/R)-SIN(lat1)*SIN(lat2))
   f64 d_r((distance / f64(1000L)) / f64(6371000L));
-  f64 _latEnd(asin64o(sin64o(_latStart) * cos64o(d_r) + cos64o(_latStart) * sin64o(d_r) * cos64o(_bearing)));
-  f64 _lngEnd(_lngStart + atan264o(sin64(_bearing) * sin64o(d_r) * cos64o(_latStart), cos64o(d_r) - sin64o(_latStart) * sin64(_latEnd)));
+
+  f64 _sin_latStart = sin64o(_latStart);
+  f64 _cos_latStart = cos64o(_latStart);
+
+  f64 _sin_d_r = sin64o(d_r);
+  f64 _cos_d_r = cos64o(d_r);
+
+  static f64 offset_lat = _latStart;
+  static f64 offset=0;
+  if ((offset == 0) || (abs64o(offset_lat - _latStart) > 0.00174533)) { // if no ofset calc'd or more than 0.1 degree away from last calc'd offset start
+    offset = asin64o(_sin_latStart) - _latStart; // with no distance or bearing cos(d_r)=1, all the other terms cancel out (sin(0) = 0)
+    offset_lat = _latStart;
+  }
+
+  f64 _latEnd(asin64o(_sin_latStart * _cos_d_r + _cos_latStart * _sin_d_r * cos64(_bearing)) - offset);
+  f64 _lngEnd(_lngStart + atan264o(sin64(_bearing) * _sin_d_r * _cos_latStart, _cos_d_r - _sin_latStart * sin64(_latEnd)));
 
   latEnd = rtod64(_latEnd);
   lngEnd = rtod64(_lngEnd);
